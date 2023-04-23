@@ -1,17 +1,16 @@
 import gradio as gr
 import logging
 import configparser
-
-import sys
 from pathlib import Path
-
-sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 from src.loader.base_loader import convert_to_samples
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
+config = configparser.ConfigParser()
+config.read(Path('configs', 'config.ini'))
 
 
 def predict(**kwargs):

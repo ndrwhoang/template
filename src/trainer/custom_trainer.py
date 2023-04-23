@@ -7,10 +7,6 @@ https://github.com/huggingface/transformers/blob/68287689f2f0d8b7063c400230b3766
 from torch import nn
 from transformers import Trainer
 
-import sys
-from pathlib import Path
-
-sys.path.append(str(Path(__file__).resolve().parents[1]))
 from src.trainer.optimizers import get_optimizer_and_scheduler
 
 

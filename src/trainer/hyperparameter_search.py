@@ -5,9 +5,6 @@ import configparser
 import optuna
 from transformers import AutoConfig
 
-import sys
-
-sys.path.append(str(Path(__file__).resolve().parents[1]))
 from src.trainer import optimizers
 from src.models.encoder import ScoringModel
 
