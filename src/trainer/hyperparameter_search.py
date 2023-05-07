@@ -1,11 +1,8 @@
-from pathlib import Path
 import logging
 import configparser
 
-import optuna
 from transformers import AutoConfig
 
-from src.trainer import optimizers
 from src.models.encoder import ScoringModel
 
 
@@ -21,7 +18,6 @@ def hyperparameter_space(trial):
             "per_device_train_batch_size", [8, 16, 32]
         ),
     }
-    # BestRun(run_id='0', objective=0.5580515820267424, hyperparameters={'learning_rate': 0.0027469777884867185, 'per_device_train_batch_size': 32}, run_summary=None)
 
 
 def get_model_init(config: configparser.ConfigParser):

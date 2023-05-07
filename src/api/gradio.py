@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 config = configparser.ConfigParser()
-config.read(Path('configs', 'config.ini'))
+config.read(Path("configs", "config.ini"))
 
 
 def predict(**kwargs):
