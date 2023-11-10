@@ -1,0 +1,16 @@
+name: nlp
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+dependencies:
+  - python
+  - pytorch
+  - pytorch-cuda
+  - transformers
+  - pandas
+  - scikit-learn
+  - lightning
+  - wandb
+  # - deepspeed
+  # - bitsandbytes

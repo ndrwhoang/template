@@ -1,60 +1,40 @@
-import configparser
-import json
-import logging
-import random
+# ruff: noqa: E402
+
 import typing as t
 from pathlib import Path
+import configparser
+import sys
 
-logging.basicConfig()
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+import pandas as pd
+from sklearn.model_selection import train_test_split
 
-
-def write_to_jsonl(output: t.List, path_out: Path):
-    with open(path_out, "w", encoding="utf-8") as f:
-        for line in output:
-            json.dump(line, ensure_ascii=False)
-            f.write("\n")
+sys.path.append(str(Path(__file__).resolve().parents[2]))
+from src.preprocess.utils import dump_jsonl
 
 
-def train_val_test_split(
-    config: configparser.ConfigParser,
-    train_filename: str,
-    val_filename: str,
-    test_filename: str,
-):
-    """
-    Read, shuffle, split, dump
-    """
+def train_dev_test_split(
+    df: pd.DataFrame, config: configparser.ConfigParser
+) -> t.List[t.Dict]:
+    df = df.sample(frac=1, random_state=config.getint("general", "seed")).reset_index(
+        drop=True
+    )
+    df_train, df_dev_test = train_test_split(
+        df, train_size=config.getfloat("dataset", "train_size")
+    )
+    df_dev, df_test = train_test_split(df_dev_test, train_size=0.5)
 
-    def _load_all_samples():
-        raise NotImplementedError
-
-    all_samples = _load_all_samples()
-
-    # Shuffle
-    random.shuffle(all_samples)
-    cutoff = int(len(all_samples) * config.getfloat("preprocess", "train_p"))
-    train_samples = all_samples[:cutoff]
-    val_test_samples = all_samples[cutoff:]
-    val_samples = val_test_samples[: len(val_test_samples) // 2]
-    test_samples = val_test_samples[len(val_test_samples) // 2 :]
-
-    # Dump
-    train_out = Path(config["path"]["train"]) / f"{train_filename}.jsonl"
-    val_out = Path(config["path"]["val"]) / f"{val_filename}.jsonl"
-    test_out = Path(config["path"]["test"]) / f"{test_filename}.jsonl"
-
-    write_to_jsonl(train_samples, train_out)
-    write_to_jsonl(val_samples, val_out)
-    write_to_jsonl(test_samples, test_out)
-
-    logger.info(f" Dumped {len(train_samples)} samples to {str(train_out)}")
+    dump_jsonl(df_train.to_dict("records"), config.get("path", "train"))
+    dump_jsonl(df_dev.to_dict("records"), config.get("path", "dev"))
+    dump_jsonl(df_test.to_dict("records"), config.get("path", "test"))
 
 
 def main():
     config = configparser.ConfigParser()
-    config.read(Path("configs/config.ini"))
-    random.seed(config.getint("general", "seed"))
+    config.read(Path("configs", "config.ini"))
 
-    train_val_test_split(config, "train", "val", "test")
+    df = pd.read_json("data/raw/data.jsonl", lines=True)
+    train_dev_test_split(df, config)
+
+
+if __name__ == "__main__":
+    main()
