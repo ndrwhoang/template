@@ -1,4 +1,3 @@
-import configparser
 import copy
 import typing as t
 
@@ -7,32 +6,32 @@ from torch import nn
 
 
 class ClassifierHead(nn.Module):
-    def __init__(self, config: configparser.ConfigParser):
+    def __init__(self, config: t.Dict):
         super(ClassifierHead, self).__init__()
         self.head = nn.Sequential(
-            nn.Dropout(p=config.getfloat("model", "dropout")),
+            nn.Dropout(p=config['model']['dropout']),
             nn.Linear(
-                # NOTE: this valuie depends on the encoder used
-                config.getint("model", "pretrained_hidden_dim"),
-                config.getint("model", "hidden_size"),
+                # NOTE: this value depends on the encoder used
+                config['model']['pretrained_hidden_dim'],
+                config['model']['hidden_size']
             ),
-            nn.Dropout(p=config.getfloat("model", "dropout")),
+            nn.Dropout(p=config['model']['dropout']),
             nn.Tanh(),
             nn.Linear(
-                config.getint("model", "hidden_size"),
+                config['model']['hidden_size'],
                 # NOTE: this value depends the number of classes
-                config.getint("model", "n_classes"),
+                config['model']['n_classes'],
             ),
         )
 
-    def forward(self, logits: torch.Tensor):
+    def forward(self, logits: torch.Tensor) -> torch.Tensor:
         logits = self.head(logits)
 
         return logits
 
 
 class Classifier(nn.Module):
-    def __init__(self, encoder: nn.Module, config: configparser.ConfigParser):
+    def __init__(self, encoder: nn.Module, config: t.Dict):
         super(Classifier, self).__init__()
         self.encoder = copy.deepcopy(encoder)
         self.config = config
@@ -44,7 +43,7 @@ class Classifier(nn.Module):
         attention_mask: torch.Tensor,
         labels: t.Optional[torch.Tensor] = None,
         **kwargs
-    ):
+    ) -> torch.Tensor:
         text_encoding = self.encoder(
             input_ids=input_ids,
             attention_mask=attention_mask,

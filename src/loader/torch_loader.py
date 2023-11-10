@@ -1,4 +1,3 @@
-import configparser
 import logging
 from pathlib import Path
 import typing as t
@@ -59,7 +58,7 @@ class TextDataset(Dataset):
 
 
 class TextDataModule(pl.LightningDataModule):
-    def __init__(self, config: configparser.ConfigParser, tokenizer: AutoTokenizer):
+    def __init__(self, config: t.Dict, tokenizer: AutoTokenizer):
         super().__init__()
         self.config = config
         self.tokenizer = tokenizer
@@ -77,50 +76,50 @@ class TextDataModule(pl.LightningDataModule):
         assert stage in ["fit", "validate", "test", "predict"]
 
         if stage == "fit":
-            train_path = Path(self.config.get("path", "train"))
-            val_path = Path(self.config.get("path", "val"))
+            train_path = Path(self.config['training']['paths']['train'])
+            val_path = Path(self.config['training']['paths']['val'])
 
             self.train_dataset = TextDataset(self._process_dataset(train_path))
             self.val_dataset = TextDataset(self._process_dataset(val_path))
 
         if stage == "validate":
-            val_path = Path(self.config.get("path", "val"))
+            val_path = Path(self.config['training']['paths']['val'])
             self.val_dataset = TextDataset(self._process_dataset(val_path))
 
         if stage == "test":
-            test_path = Path(self.config.get("path", "test"))
+            test_path = Path(self.config['training']['paths']['test'])
             self.test_dataset = TextDataset(self._process_dataset(test_path))
 
         if stage == "predict":
-            predict_path = Path(self.config.get("path", "predict"))
+            predict_path = Path(self.config['inference']['paths']['inference'])
             self.predict_dataset = TextDataset(self._process_dataset(predict_path))
 
     def train_dataloader(self):
         return DataLoader(
             self.train_dataset,
-            batch_size=self.config.getint("training", "train_bs"),
+            batch_size=self.config['training']['train_bs'],
             pin_memory=True,
             shuffle=True,
             collate_fn=TextDataset.collate_fn,
-            num_workers=self.config.getint("training", "n_workers"),
+            num_workers=self.config['training']['n_workers'],
         )
 
     def val_dataloader(self):
         return DataLoader(
             self.val_dataset,
-            batch_size=self.config.getint("training", "val_bs"),
+            batch_size=self.config['training']['val_bs'],
             pin_memory=True,
             shuffle=False,
             collate_fn=TextDataset.collate_fn,
-            num_workers=self.config.getint("training", "n_workers"),
+            num_workers=self.config['training']['n_workers'],
         )
 
     def test_dataloader(self):
         return DataLoader(
             self.test_dataset,
-            batch_size=self.config.getint("training", "test_bs"),
+            batch_size=self.config['training']['test_bs'],
             pin_memory=True,
             shuffle=False,
             collate_fn=TextDataset.collate_fn,
-            num_workers=self.config.getint("training", "n_workers"),
+            num_workers=self.config['training']['n_workers'],
         )

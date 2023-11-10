@@ -1,11 +1,12 @@
 # ruff: noqa: E402
 
 import argparse
-import configparser
 import logging
 import sys
 from pathlib import Path
+import typing as t
 
+import yaml
 from transformers import AutoModel, AutoTokenizer
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
@@ -18,12 +19,12 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-def training_setup(config: configparser.ConfigParser):
+def training_setup(config: t.Dict):
     pretrained_encoder = AutoModel.from_pretrained(
-        config.get("model", "pretrained_name")
+        config['model']['pretrained_name']
     )
-    tokenizer = AutoTokenizer.from_pretrained(config.get("model", "pretrained_name"))
-    if config.getboolean("training", "cpu_checkpointing"):
+    tokenizer = AutoTokenizer.from_pretrained(config['model']['pretrained_name'])
+    if config['training']['deepspeed']['cpu_checkpointing']:
         try:
             pretrained_encoder.gradient_checkpointing_enable()
         except ValueError:
@@ -43,8 +44,8 @@ def training_setup(config: configparser.ConfigParser):
 
 def main(config_path: str):
     logger.info("hello world")
-    config = configparser.ConfigParser()
-    config.read(Path(config_path))
+    with open(Path('configs', 'config.yaml'), 'r') as f:
+        config = yaml.safe_load(f)
 
     (model, data_module, trainer) = training_setup(config)
 
