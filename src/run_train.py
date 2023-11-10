@@ -89,7 +89,7 @@ def train_kfold(config: t.Dict):
 
 
 def main(config_path: str):
-    with open(Path("configs", "config.yaml"), "r") as f:
+    with open(Path(config_path), "r") as f:
         config = yaml.safe_load(f)
 
     train(config)
