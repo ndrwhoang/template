@@ -42,6 +42,10 @@ training:
     strategy: 'constant_with_warmup'
     patience: 3
 
+  kfold:
+    n_folds: 3
+    p_val_samples: 0.1
+
   paths:
     train: 'train.jsonl'
     val: 'val.jsonl'

@@ -128,7 +128,9 @@ class LightningModelWrapper(LightningTrainerInterface):
 def get_callbacks(config: t.Dict) -> t.List[callbacks.Callback]:
     checkpoint_callback = callbacks.ModelCheckpoint(
         monitor="val_accuracy",
-        dirpath=Path(config['training']['paths']['training_out'], config['training']['run_name']),
+        dirpath=Path(
+            config["training"]["paths"]["training_out"], config["training"]["run_name"]
+        ),
         filename="epoch{epoch:02d}-val_accuracy{val_accuracy:.2f}",
         save_last=True,
         save_top_k=3,
@@ -153,8 +155,8 @@ def get_callbacks(config: t.Dict) -> t.List[callbacks.Callback]:
 
 def get_logger(config: t.Dict):
     logger = WandbLogger(
-        name=config['training']['run_name'],
-        save_dir=config['training']['paths']['training_out'],
+        name=config["training"]["run_name"],
+        save_dir=config["training"]["paths"]["training_out"],
     )
 
     return logger
@@ -163,9 +165,9 @@ def get_logger(config: t.Dict):
 def get_strategy(config: t.Dict):
     strategy = DeepSpeedStrategy(
         stage=3,
-        offload_optimizer=config['training']['deepspeed']['offload_optimizer'],
-        offload_parameters=config['training']['deepspeed']['offload_parameters'],
-        cpu_checkpointing=config['training']['deepspeed']['cpu_checkpointing'],
+        offload_optimizer=config["training"]["deepspeed"]["offload_optimizer"],
+        offload_parameters=config["training"]["deepspeed"]["offload_parameters"],
+        cpu_checkpointing=config["training"]["deepspeed"]["cpu_checkpointing"],
     )
 
     return strategy
@@ -175,17 +177,17 @@ def get_trainer(config: t.Dict):
     trainer = pl.Trainer(
         accelerator="auto",
         devices="auto",
-        precision=config['training']['deepspeed']['precision'],
-        max_epochs=config['training']['n_epochs'],
-        accumulate_grad_batches=config['training']['n_accumulation_steps'],
+        precision=config["training"]["deepspeed"]["precision"],
+        max_epochs=config["training"]["n_epochs"],
+        accumulate_grad_batches=config["training"]["n_accumulation_steps"],
         deterministic=True,
         inference_mode=True,
         profiler="simple",
         logger=get_logger(config),
         strategy=get_strategy(config),
         callbacks=get_callbacks(config),
-        default_root_dir=config['training']['paths']['training_out'],
-        fast_dev_run=config['training']['test_run'],
+        default_root_dir=config["training"]["paths"]["training_out"],
+        fast_dev_run=config["training"]["test_run"],
     )
 
     return trainer

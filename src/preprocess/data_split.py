@@ -11,10 +11,8 @@ sys.path.append(str(Path(__file__).resolve().parents[2]))
 from src.preprocess.utils import dump_jsonl
 
 
-def train_dev_test_split(
-    df: pd.DataFrame, config: t.Dict
-) -> t.List[t.Dict]:
-    df = df.sample(frac=1, random_state=config['general']['seed']).reset_index(
+def train_dev_test_split(df: pd.DataFrame, config: t.Dict) -> t.List[t.Dict]:
+    df = df.sample(frac=1, random_state=config["general"]["seed"]).reset_index(
         drop=True
     )
     df_train, df_dev_test = train_test_split(
@@ -28,7 +26,7 @@ def train_dev_test_split(
 
 
 def main():
-    with open(Path('configs', 'config.yaml'), 'r') as f:
+    with open(Path("configs", "config.yaml"), "r") as f:
         config = yaml.safe_load(f)
 
     df = pd.read_json("data/raw/data.jsonl", lines=True)

@@ -9,18 +9,18 @@ class ClassifierHead(nn.Module):
     def __init__(self, config: t.Dict):
         super(ClassifierHead, self).__init__()
         self.head = nn.Sequential(
-            nn.Dropout(p=config['model']['dropout']),
+            nn.Dropout(p=config["model"]["dropout"]),
             nn.Linear(
                 # NOTE: this value depends on the encoder used
-                config['model']['pretrained_hidden_dim'],
-                config['model']['hidden_size']
+                config["model"]["pretrained_hidden_dim"],
+                config["model"]["hidden_size"],
             ),
-            nn.Dropout(p=config['model']['dropout']),
+            nn.Dropout(p=config["model"]["dropout"]),
             nn.Tanh(),
             nn.Linear(
-                config['model']['hidden_size'],
+                config["model"]["hidden_size"],
                 # NOTE: this value depends the number of classes
-                config['model']['n_classes'],
+                config["model"]["n_classes"],
             ),
         )
 
