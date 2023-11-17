@@ -1,4 +1,5 @@
 # ruff: noqa: E402
+# flake8: noqa: E402
 
 import argparse
 import logging
@@ -65,7 +66,7 @@ def train_kfold(config: t.Dict):
     lightning_data_module.prepare_data("kfold")
     # temp array of the same shpae opf the dataset so that KFold can split it for ids
     temp_array = np.zeros((len(lightning_data_module.train_val_dataset), 1))
-    # The split here controls the number of validation samples in each run 
+    # The split here controls the number of validation samples in each run
     # so we don't use more samples for validation than necessary, not the number of folds we run
     kfold = KFold(n_splits=1 / config["training"]["kfold"]["p_val_samples"])
 

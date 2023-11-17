@@ -1,4 +1,5 @@
 # ruff: noqa: E402
+# flake8: noqa: E402
 import abc
 import typing as t
 import copy
@@ -10,7 +11,6 @@ from torch import nn
 import torch.nn.functional as F
 import lightning.pytorch as pl
 from lightning.pytorch.loggers import WandbLogger
-from lightning.pytorch.profilers import AdvancedProfiler
 from lightning.pytorch.strategies import DeepSpeedStrategy
 import lightning.pytorch.callbacks as callbacks
 from torch.optim.optimizer import Optimizer

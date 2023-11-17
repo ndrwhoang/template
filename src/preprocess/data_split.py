@@ -1,4 +1,5 @@
 # ruff: noqa: E402
+# flake8: noqa: E402
 import typing as t
 from pathlib import Path
 import sys

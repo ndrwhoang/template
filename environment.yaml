@@ -13,5 +13,8 @@ dependencies:
   - lightning
   - wandb
   - black
+  - pre-commit
+  - flake8
+  - pytest
   # - deepspeed
   # - bitsandbytes
