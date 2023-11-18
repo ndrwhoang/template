@@ -157,6 +157,7 @@ def get_logger(config: t.Dict):
     logger = WandbLogger(
         name=config["training"]["run_name"],
         save_dir=config["training"]["paths"]["training_out"],
+        project="template",
     )
 
     return logger
