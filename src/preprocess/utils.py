@@ -1,8 +1,7 @@
 import json
-import typing as t
 import logging
+import typing as t
 from pathlib import Path
-
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)

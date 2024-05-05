@@ -1,20 +1,20 @@
 # ruff: noqa: E402
 # flake8: noqa: E402
 import abc
-import typing as t
 import copy
 import sys
+import typing as t
 from pathlib import Path
 
-import torch
-from torch import nn
-import torch.nn.functional as F
 import lightning.pytorch as pl
+import lightning.pytorch.callbacks as callbacks
+import torch
+import torch.nn.functional as F
 from lightning.pytorch.loggers import WandbLogger
 from lightning.pytorch.strategies import DeepSpeedStrategy
-import lightning.pytorch.callbacks as callbacks
+from torch import nn
 from torch.optim.optimizer import Optimizer
-from torchmetrics import Accuracy, MinMetric, MaxMetric
+from torchmetrics import Accuracy, MaxMetric, MinMetric
 
 sys.path.append(str(Path(__file__).resolve().parents[2]))
 from src.trainer.optimizers import get_optimizer
@@ -183,7 +183,7 @@ def get_trainer(config: t.Dict):
         accumulate_grad_batches=config["training"]["n_accumulation_steps"],
         deterministic=True,
         inference_mode=True,
-        profiler="simple",
+        profiler="pytorch",
         logger=get_logger(config),
         strategy=get_strategy(config),
         callbacks=get_callbacks(config),

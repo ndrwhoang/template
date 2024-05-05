@@ -1,13 +1,12 @@
 import logging
-from pathlib import Path
 import typing as t
+from pathlib import Path
 
-import torch
-import pandas as pd
-from torch.utils.data import Dataset, DataLoader, SubsetRandomSampler
-from transformers import AutoTokenizer
 import lightning.pytorch as pl
-
+import pandas as pd
+import torch
+from torch.utils.data import DataLoader, Dataset, SubsetRandomSampler
+from transformers import AutoTokenizer
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
@@ -15,6 +14,10 @@ logger.setLevel(logging.INFO)
 
 
 class TextDataset(Dataset):
+    """
+    Dataset class
+    """
+
     def __init__(self, dataset: t.Dict[str, t.List]):
         self.input_texts = dataset["input_texts"]
         self.labels = dataset["labels"]
@@ -58,6 +61,10 @@ class TextDataset(Dataset):
 
 
 class TextDataModule(pl.LightningDataModule):
+    """
+    lightning dataset interface
+    """
+
     def __init__(self, config: t.Dict, tokenizer: AutoTokenizer):
         super().__init__()
         self.config = config

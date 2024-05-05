@@ -2,7 +2,7 @@ import typing as t
 
 import torch
 import torch.nn as nn
-from deepspeed.ops.adam import FusedAdam, DeepSpeedCPUAdam
+from deepspeed.ops.adam import DeepSpeedCPUAdam, FusedAdam
 
 
 def get_optimizer(config: t.Dict, parameters: nn.Parameter):

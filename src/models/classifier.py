@@ -6,6 +6,10 @@ from torch import nn
 
 
 class ClassifierHead(nn.Module):
+    """
+    model prediction head
+    """
+
     def __init__(self, config: t.Dict):
         super(ClassifierHead, self).__init__()
         self.head = nn.Sequential(
@@ -31,6 +35,10 @@ class ClassifierHead(nn.Module):
 
 
 class Classifier(nn.Module):
+    """
+    model encoder
+    """
+
     def __init__(self, encoder: nn.Module, config: t.Dict):
         super(Classifier, self).__init__()
         self.encoder = copy.deepcopy(encoder)

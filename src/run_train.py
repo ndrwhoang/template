@@ -4,18 +4,19 @@
 import argparse
 import logging
 import sys
-from pathlib import Path
 import typing as t
+from pathlib import Path
 
-from sklearn.model_selection import KFold
 import numpy as np
+import torch
 import yaml
+from sklearn.model_selection import KFold
 from transformers import AutoModel, AutoTokenizer
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 from src.loader.torch_loader import TextDataModule
 from src.models.classifier import Classifier
-from src.trainer.pl_trainer import get_trainer, LightningModelWrapper
+from src.trainer.pl_trainer import LightningModelWrapper, get_trainer
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
@@ -33,6 +34,9 @@ def training_setup(config: t.Dict):
 
     model = Classifier(pretrained_encoder, config)
     lightning_model = LightningModelWrapper(config, model)
+    lightning_model = torch.compile(
+        lightning_model, mode=config["training"]["torch_compile_mode"]
+    )
 
     lightning_data_module = TextDataModule(config, tokenizer)
 
@@ -81,6 +85,10 @@ def train_kfold(config: t.Dict):
 
         model = Classifier(pretrained_encoder, config)
         lightning_model = LightningModelWrapper(config, model)
+        lightning_model = torch.compile(
+            lightning_model, mode=config["training"]["torch_compile_mode"]
+        )
+
         lightning_trainer = get_trainer(config)
 
         train_dataloader = lightning_data_module.train_dataloader_kfold(train_ids)

@@ -5,16 +5,17 @@ set +e
 FAILURE=false
 
 # apply automatic formatting
-echo "black"
-pre-commit run black || FAILURE=true
+echo "automatic formatting"
+pre-commit run --all-files black || FAILURE=true
+pre-commit run --all-files isort || FAILURE=true
 
 # check for python code style violations, see .flake8 for details
 echo "flake8"
-pre-commit run flake8 || FAILURE=true
+pre-commit run --all-files flake8 || FAILURE=true
 
 # check for shell scripting style violations and common bugs
 echo "shellcheck"
-pre-commit run shellcheck || FAILURE=true
+pre-commit run --all-files shellcheck || FAILURE=true
 
 if [ "$FAILURE" = true ]; then
   echo "Linting failed"

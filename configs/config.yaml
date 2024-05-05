@@ -23,6 +23,7 @@ training:
   n_workers: 8
   n_epochs: 10
   n_accumulate_steps: 4
+  torch_compile_mode: 'reduce-overhead'
 
   deepspeed:
     precision: 'bfloat16'

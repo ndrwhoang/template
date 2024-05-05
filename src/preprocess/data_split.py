@@ -1,11 +1,11 @@
 # ruff: noqa: E402
 # flake8: noqa: E402
+import sys
 import typing as t
 from pathlib import Path
-import sys
 
-import yaml
 import pandas as pd
+import yaml
 from sklearn.model_selection import train_test_split
 
 sys.path.append(str(Path(__file__).resolve().parents[2]))
