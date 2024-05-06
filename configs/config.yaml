@@ -20,6 +20,7 @@ training:
   train_bs: 32
   val_bs: 32
   test_bs: 32
+  max_len: 128
   n_workers: 8
   n_epochs: 10
   n_accumulate_steps: 4

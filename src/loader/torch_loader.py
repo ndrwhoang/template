@@ -18,42 +18,52 @@ class TextDataset(Dataset):
     Dataset class
     """
 
-    def __init__(self, dataset: t.Dict[str, t.List]):
-        self.input_texts = dataset["input_texts"]
-        self.labels = dataset["labels"]
+    def __init__(self, config: t.Dict, mode: str):
+        self.config = config
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            config["model"]["pretrained_name"]
+        )
+        self.sample_ids, self.samples, self.labels = self._load_dataset(mode)
+
+    def _load_dataset(self, mode: str) -> t.Tuple[t.List, t.List, t.List]:
+        if mode == "train":
+            data_path = Path(self.config["training"]["paths"]["train"])
+        elif mode == "validate":
+            data_path = Path(self.config["training"]["paths"]["val"])
+        elif mode == "test":
+            data_path = Path(self.config["training"]["paths"]["test"])
+        elif mode == "predict":
+            data_path = Path(self.config["training"]["paths"]["predict"])
+        elif mode == "kfold":
+            data_path = Path(self.config["training"]["paths"]["train_val"])
+
+        dataset = pd.read_csv(Path(data_path))
+
+        return dataset["sample_id"], dataset["text"], dataset["label"]
 
     def __len__(self):
         return len(self.labels)
 
-    def __getitem__(self, index: int):
-        return self.input_texts[index], self.labels[index]
+    def __getitem__(self, index: int) -> t.Tuple:
+        return self.sample_ids[index], self.samples[index], self.labels[index]
 
     @staticmethod
-    def convert_label_dtype(df: pd.DataFrame) -> pd.DataFrame:
-        df["label"] = df["label"].astype(int)
+    def collate_fn(self, batch: t.Tuple) -> t.Dict:
+        (sample_ids, samples, labels) = zip(*batch)
 
-        return df
-
-    @staticmethod
-    def placeholder(df: pd.DataFrame) -> pd.DataFrame:
-        raise NotImplementedError
-
-    @staticmethod
-    def collate_fn(batch: t.Dict, tokenizer: object, max_length: int):
-        (input_texts, labels) = zip(*batch)
-
-        tokenizer_out = tokenizer(
-            input_texts,
+        tokenizer_out = self.tokenizer(
+            samples,
             truncation=True,
             padding="max_length",
             return_attention_mask=True,
             return_tensors="pt",
-            max_length=max_length,
+            max_length=self.config["training"]["max_len"],
         )
 
         labels = torch.tensor(labels)
 
         return {
+            "sample_ids": sample_ids,
             "input_ids": tokenizer_out["input_ids"],
             "attention_mask": tokenizer_out["attention_mask"],
             "labels": labels,
@@ -65,45 +75,24 @@ class TextDataModule(pl.LightningDataModule):
     lightning dataset interface
     """
 
-    def __init__(self, config: t.Dict, tokenizer: AutoTokenizer):
+    def __init__(self, config: t.Dict):
         super().__init__()
         self.config = config
-        self.tokenizer = tokenizer
-
-    def _process_dataset(self, path: Path) -> t.List[t.Dict]:
-        dataset = pd.read_json(path, lines=True)
-        dataset = dataset.pipe(TextDataset.convert_label_dtype).pipe(
-            TextDataset.placeholder
-        )
-        dataset = dataset.to_dict("list")
-
-        return dataset
 
     def setup(self, stage):
         assert stage in ["fit", "validate", "test", "predict", "kfold"]
 
         if stage == "fit":
-            train_path = Path(self.config["training"]["paths"]["train"])
-            val_path = Path(self.config["training"]["paths"]["val"])
-
-            self.train_dataset = TextDataset(self._process_dataset(train_path))
-            self.val_dataset = TextDataset(self._process_dataset(val_path))
-
-        if stage == "validate":
-            val_path = Path(self.config["training"]["paths"]["val"])
-            self.val_dataset = TextDataset(self._process_dataset(val_path))
-
-        if stage == "test":
-            test_path = Path(self.config["training"]["paths"]["test"])
-            self.test_dataset = TextDataset(self._process_dataset(test_path))
-
-        if stage == "predict":
-            predict_path = Path(self.config["inference"]["paths"]["inference"])
-            self.predict_dataset = TextDataset(self._process_dataset(predict_path))
-
-        if stage == "kfold":
-            train_val_path = Path(self.config["training"]["paths"]["train_val"])
-            self.train_val_dataset = TextDataset(self._process_dataset(train_val_path))
+            self.train_dataset = TextDataset(self.config, "train")
+            self.val_dataset = TextDataset(self.config, "validate")
+        elif stage == "validate":
+            self.val_dataset = TextDataset(self.config, "validate")
+        elif stage == "test":
+            self.test_dataset = TextDataset(self.config, "test")
+        elif stage == "predict":
+            self.predict_dataset = TextDataset(self.config, "predict")
+        elif stage == "kfold":
+            self.train_val_dataset = TextDataset(self.config, "train_val")
 
     def train_dataloader(self):
         return DataLoader(

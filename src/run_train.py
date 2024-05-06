@@ -25,7 +25,6 @@ logger.setLevel(logging.INFO)
 
 def training_setup(config: t.Dict):
     pretrained_encoder = AutoModel.from_pretrained(config["model"]["pretrained_name"])
-    tokenizer = AutoTokenizer.from_pretrained(config["model"]["pretrained_name"])
     if config["training"]["deepspeed"]["cpu_checkpointing"]:
         try:
             pretrained_encoder.gradient_checkpointing_enable()
@@ -38,7 +37,7 @@ def training_setup(config: t.Dict):
         lightning_model, mode=config["training"]["torch_compile_mode"]
     )
 
-    lightning_data_module = TextDataModule(config, tokenizer)
+    lightning_data_module = TextDataModule(config)
 
     lightning_trainer = get_trainer(config)
     # Hack to put deepspeed on any optimizer (this is mainly to suppress the warning)
