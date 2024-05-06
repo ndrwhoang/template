@@ -21,9 +21,10 @@ from src.trainer.optimizers import get_optimizer
 
 
 class LightningTrainerInterface(pl.LightningModule, metaclass=abc.ABCMeta):
-    def __init__(self, config: t.Dict):
+    def __init__(self, config: t.Dict, model: torch.Module):
         super().__init__()
         self.config = config
+        self.model = copy.deepcopy(model)
 
         # Metrics
         self.train_accuracy = Accuracy(task="binary")
@@ -110,10 +111,9 @@ class LightningTrainerInterface(pl.LightningModule, metaclass=abc.ABCMeta):
 
 class LightningModelWrapper(LightningTrainerInterface):
     def __init__(self, config: t.Dict, model: nn.Module):
-        super().__init__(config)
+        super().__init__()
 
         self.save_hyperparameters(ignore=["model"])
-        self.model = copy.deepcopy(model)
 
     def loss_fn(self, logits: torch.Tensor, labels: torch.Tensor) -> torch.Tensor:
         return F.cross_entropy(logits, labels)
