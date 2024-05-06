@@ -1,0 +1,63 @@
+general:
+  seed: 2
+
+datasset:
+  train_p: 0.8
+
+model:
+  pretrained_name: 'microsoft/deberta-v3-xsmall'
+  n_classes: 2
+  dropout: 0.5
+  pretrained_hidden_dim: 768
+  hidden_size: 512
+
+training:
+  seed: 123
+  run_name: 'test_run'
+  test_run: True
+  no_cuda: False
+
+  train_bs: 32
+  val_bs: 32
+  test_bs: 32
+  n_workers: 8
+  n_epochs: 10
+  n_accumulate_steps: 4
+  torch_compile_mode: 'reduce-overhead'
+
+  deepspeed:
+    precision: 'bfloat16'
+    offload_optimizer: True
+    offload_parameters: True
+    cpu_checkpointing: False
+
+  optimizer:
+    alg: 'adafactor'
+    lr: 0.0001
+    weight_decay: 0.0
+    adam_beta1: 0.9
+    adam_beta2: 0.999
+    adam_epsilon: 1e-08
+
+  scheduler:
+    strategy: 'constant_with_warmup'
+    patience: 3
+
+  kfold:
+    n_folds: 3
+    p_val_samples: 0.1
+
+  paths:
+    train: 'train.jsonl'
+    val: 'val.jsonl'
+    test: 'test.jsonl'
+    train_val: 'train_val.jsonl'
+    training_out: 'training_out/'
+
+inference:
+  seed: 123
+  paths:
+    inference: 'inference.jsonl'
+    model_checkpoint: 'model.pt'
+    inference_out: 'inference_out/'
+
